@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hội Trại & Kỷ Niệm 60 Năm - THPT Ninh Giang</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      background: radial-gradient(circle at center, #ffb347, #ff6b6b, #420039);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    /* ====== TIÊU ĐỀ TRUNG TÂM ====== */
+    .welcome-text {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .welcome-text h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 3.2rem;
+      color: #fff5c2;
+      text-shadow:
+        0 0 10px #ffd93d,
+        0 0 20px #ff8e3c,
+        0 0 40px #ff0033;
+      animation: glow 3s infinite alternate;
+      cursor: pointer;
+    }
+
+    .welcome-text h2 {
+      font-weight: 400;
+      color: #fff;
+      font-size: 1.5rem;
+      margin-top: 10px;
+      letter-spacing: 1px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ff9a3c, 0 0 20px #ff4e3c; }
+      to { text-shadow: 0 0 25px #ffcb3c, 0 0 40px #ff2e63; }
+    }
+
+    /* ====== ĐỒNG HỒ ĐẾM NGƯỢC ====== */
+    #countdown {
+      margin-top: 30px;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 0 15px #ffcb3c;
+    }
+
+    /* ====== NÚT NHẠC ====== */
+    #playMusic {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff3d3d, #ffbf00);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      box-shadow: 0 0 20px #ff6b6b;
+      animation: spin 6s linear infinite;
+      transition: transform 0.3s;
+    }
+
+    #playMusic:hover { transform: scale(1.2); }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    audio { display: none; }
+
+    /* ====== PHÁO HOA ====== */
+    .firework {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: white;
+      border-radius: 50%;
+      animation: explode 1.5s ease-out forwards;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(0.5) translate(0, 0); opacity: 1; }
+      100% { transform: scale(1.5) translate(var(--dx), var(--dy)); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="lights"></canvas>
+
+  <div class="welcome-text">
+    <h1 id="title">Chào mừng Hội Trại & Kỷ Niệm 60 Năm<br>THPT Ninh Giang</h1>
+    <h2>Hành trình 60 năm – Tỏa sáng cùng thời gian 🌟</h2>
+    <div id="countdown">Đang tải đồng hồ đếm ngược...</div>
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="Từng Ngày Yêu Em.mp3" type="audio/mpeg">
+  </audio>
+
+  <button id="playMusic">🎵</button>
+
+  <script>
+    /* ====== NỀN ÁNH SÁNG MƯỢT MÀ ====== */
+    const canvas = document.getElementById("lights");
+    const ctx = canvas.getContext("2d");
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    const particles = [];
+    for (let i = 0; i < 300; i++) particles.push(new Particle());
+
+    function animate() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // tạo vệt sáng mờ
+      ctx.fillRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    /* ====== PHÁO HOA ====== */
+    function createFirework(x, y) {
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        const dx = (Math.random() - 0.5) * 200 + "px";
+        const dy = (Math.random() - 0.5) * 200 + "px";
+        const fire = document.createElement("div");
+        fire.classList.add("firework");
+        fire.style.left = x + "px";
+        fire.style.top = y + "px";
+        fire.style.setProperty("--dx", dx);
+        fire.style.setProperty("--dy", dy);
+        fire.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        document.body.appendChild(fire);
+        setTimeout(() => fire.remove(), 1500);
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    /* ====== NHẠC ====== */
+    const playBtn = document.getElementById("playMusic");
+    const music = document.getElementById("bg-music");
+
+    playBtn.addEventListener("click", () => {
+      music.play();
+      playBtn.style.display = "none";
+    });
+
+    /* ====== ĐỒNG HỒ ĐẾM NGƯỢC ====== */
+    const countdownEl = document.getElementById("countdown");
+
+    // Tính ngày Thứ 7 gần nhất
+    const now = new Date();
+    const today = now.getDay();
+    const diffToSat = (6 - today + 7) % 7;
+    const eventDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToSat, 8, 0, 0);
+
+    function updateCountdown() {
+      const current = new Date().getTime();
+      const distance = eventDate - current;
+
+      if (distance <= 0) {
+        countdownEl.innerHTML = "🎉 Hội trại & Lễ kỷ niệm 60 năm đã bắt đầu rồi! 🎪";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownEl.innerHTML = `⏳ Còn ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
+    }
+
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
